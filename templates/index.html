@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS-MED | AI Medical Assistant</title>
-    <meta name="description" content="NEXUS-MED — Your intelligent AI medical assistant powered by advanced language models. Get health guidance, symptom analysis, and medical information 24/7.">
+    <title>LYNX AI | Your Intelligent Assistant</title>
+    <meta name="description" content="LYNX AI — A powerful, versatile AI assistant for any topic. Code, write, research, brainstorm, and more, all in one place.">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -239,6 +239,7 @@
         .sidebar-footer {
             padding: 12px 16px;
             border-top: 1px solid var(--border);
+            position: relative;
         }
         .user-profile {
             display: flex; align-items: center; gap: 10px;
@@ -246,8 +247,9 @@
             border-radius: var(--radius-md);
             cursor: pointer;
             transition: background 0.2s;
+            position: relative;
         }
-        .user-profile:hover { background: rgba(255,255,255,0.04); }
+        .user-profile:hover { background: rgba(255,255,255,0.06); }
         .user-avatar {
             width: 34px; height: 34px;
             border-radius: 50%;
@@ -259,7 +261,67 @@
         .user-info { flex: 1; }
         .user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
         .user-role { font-size: 10px; color: var(--text-muted); }
-        .user-profile i { color: var(--text-muted); font-size: 13px; }
+
+        /* ===== PROFILE MENU POPUP ===== */
+        .profile-menu-popup {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 12px; right: 12px;
+            background: #161b27;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 14px;
+            padding: 6px;
+            box-shadow: 0 -16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(99,102,241,0.08);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            z-index: 200;
+            opacity: 0;
+            transform: translateY(10px) scale(0.96);
+            pointer-events: none;
+            transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.16,1,0.3,1);
+        }
+        .profile-menu-popup.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: all;
+        }
+        .profile-menu-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 14px;
+            border-radius: 9px;
+            cursor: pointer;
+            color: #c8d0e0;
+            font-size: 13.5px;
+            font-weight: 500;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        .profile-menu-item:hover {
+            background: rgba(255,255,255,0.07);
+            color: #fff;
+        }
+        .profile-menu-item i:first-child {
+            font-size: 15px;
+            color: #8892a4;
+            width: 18px; text-align: center;
+            flex-shrink: 0;
+            transition: color 0.15s;
+        }
+        .profile-menu-item:hover i:first-child { color: #c8d0e0; }
+        .profile-menu-item span { flex: 1; }
+        .profile-menu-arrow {
+            font-size: 10px !important;
+            color: #8892a4 !important;
+            flex-shrink: 0;
+        }
+        .profile-menu-item.danger { color: #f87171; }
+        .profile-menu-item.danger i:first-child { color: #f87171; }
+        .profile-menu-item.danger:hover { background: rgba(239,68,68,0.1); color: #fca5a5; }
+        .profile-menu-item.danger:hover i:first-child { color: #fca5a5; }
+        .profile-menu-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.07);
+            margin: 5px 8px;
+        }
 
         /* ===== MAIN AREA ===== */
         #main {
@@ -373,7 +435,12 @@
         }
         .avatar-face {
             position: relative; z-index: 2;
-            font-size: 26px; color: rgba(255,255,255,0.9);
+            display: flex; align-items: center; justify-content: center;
+            animation: avatar-spin 12s linear infinite;
+        }
+        @keyframes avatar-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         .avatar-scanline {
             position: absolute; inset: 0;
@@ -449,21 +516,21 @@
             100% { transform: scale(2); opacity: 0; }
         }
 
-        /* EKG line */
-        .ekg-container {
+        /* Data stream line */
+        .datastream-container {
             width: 100%; padding: 0 24px;
             flex-shrink: 0;
         }
-        .ekg-line {
-            width: 100%; height: 24px;
+        .datastream-line {
+            width: 100%; height: 28px;
             overflow: hidden;
             position: relative;
         }
-        .ekg-line svg {
+        .datastream-line svg {
             width: 200%; height: 100%;
-            animation: ekg-scroll 3s linear infinite;
+            animation: stream-scroll 6s linear infinite;
         }
-        @keyframes ekg-scroll {
+        @keyframes stream-scroll {
             from { transform: translateX(0); }
             to { transform: translateX(-50%); }
         }
@@ -784,7 +851,138 @@
             margin-top: 6px;
         }
         .speak-btn:hover { color: var(--accent-cyan); background: rgba(6,182,212,0.08); }
+
+        /* ===== MARKDOWN TYPOGRAPHY ===== */
+        .msg-bubble.assistant .md-h1 {
+            font-size: 19px; font-weight: 700; color: #fff;
+            margin: 12px 0 6px; line-height: 1.3;
+            border-bottom: 1px solid rgba(99,102,241,0.2); padding-bottom: 5px;
+        }
+        .msg-bubble.assistant .md-h2 {
+            font-size: 15.5px; font-weight: 700; color: var(--accent-indigo-light);
+            margin: 10px 0 4px;
+        }
+        .msg-bubble.assistant .md-h3 {
+            font-size: 13.5px; font-weight: 600; color: var(--accent-cyan);
+            margin: 8px 0 2px;
+        }
+        .msg-bubble.assistant .md-p { margin: 3px 0; line-height: 1.7; font-size: 14px; }
+        .msg-bubble.assistant .md-ul, .msg-bubble.assistant .md-ol { padding-left: 18px; margin: 5px 0; }
+        .msg-bubble.assistant .md-ul li, .msg-bubble.assistant .md-ol li { margin: 4px 0; line-height: 1.65; font-size: 14px; }
+        .msg-bubble.assistant .md-ul li::marker { color: var(--accent-indigo-light); }
+        .msg-bubble.assistant .md-ol li::marker { color: var(--accent-cyan); font-weight: 700; }
+        .msg-bubble.assistant .md-spacer { height: 7px; }
+        .msg-bubble.assistant .md-hr { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 10px 0; }
+        .msg-bubble.assistant strong { color: #e2e8f0; font-weight: 700; }
+        .msg-bubble.assistant em { color: var(--accent-indigo-light); font-style: italic; }
+        .msg-bubble.assistant code {
+            background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.2);
+            padding: 1px 6px; border-radius: 5px;
+            font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #a5b4fc;
+        }
+        .msg-bubble.assistant pre {
+            background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 10px; padding: 14px 16px; margin: 8px 0; overflow-x: auto;
+        }
+        .msg-bubble.assistant pre code { background: none; border: none; padding: 0; font-size: 12.5px; color: #c4b5fd; line-height: 1.6; }
+
+        /* Streaming cursor */
+        .cursor-blink { display: inline-block; color: var(--accent-cyan); animation: cur-blink 0.8s step-end infinite; vertical-align: middle; }
+        @keyframes cur-blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* ===== SETTINGS MODAL ===== */
+        #settingsOverlay {
+            position: fixed; inset: 0; z-index: 500;
+            background: rgba(0,0,0,0.72); backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+        }
+        #settingsOverlay.open { opacity: 1; pointer-events: all; }
+        #settingsModal {
+            width: 820px; max-width: 96vw; height: 580px; max-height: 92vh;
+            background: #111827; border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 18px; display: flex; overflow: hidden;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.7);
+            transform: scale(0.94) translateY(16px);
+            transition: transform 0.28s cubic-bezier(0.16,1,0.3,1);
+            position: relative;
+        }
+        #settingsOverlay.open #settingsModal { transform: scale(1) translateY(0); }
+        #settingsClose {
+            position: absolute; top: 16px; left: 16px;
+            width: 30px; height: 30px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06);
+            color: var(--text-secondary); cursor: pointer; font-size: 13px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; z-index: 10;
+        }
+        #settingsClose:hover { background: rgba(255,255,255,0.14); color: white; }
+        .settings-nav {
+            width: 210px; flex-shrink: 0; padding: 52px 10px 16px;
+            border-right: 1px solid rgba(255,255,255,0.06);
+            overflow-y: auto; display: flex; flex-direction: column; gap: 2px;
+        }
+        .settings-nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 14px; border-radius: 9px; cursor: pointer;
+            font-size: 13.5px; font-weight: 500; color: #94a3b8;
+            transition: all 0.16s ease;
+        }
+        .settings-nav-item:hover { background: rgba(255,255,255,0.05); color: #e2e8f0; }
+        .settings-nav-item.active { background: rgba(99,102,241,0.15); color: #fff; }
+        .settings-nav-item i { width: 16px; text-align: center; font-size: 14px; }
+        .settings-panel { flex: 1; overflow-y: auto; padding: 52px 32px 24px; position: relative; }
+        .settings-page { display: none; }
+        .settings-page.active { display: block; animation: sfade 0.2s ease; }
+        @keyframes sfade { from { opacity: 0; transform: translateX(8px); } to { opacity: 1; } }
+        .settings-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 22px; }
+        .settings-banner {
+            background: #1a2035; border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 14px; padding: 18px 20px; margin-bottom: 22px; position: relative;
+        }
+        .settings-banner-close { position: absolute; top: 12px; right: 14px; background: none; border: none; color: #64748b; cursor: pointer; font-size: 16px; }
+        .settings-banner-close:hover { color: white; }
+        .settings-banner-icon {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3);
+            display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px;
+        }
+        .settings-banner h3 { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 5px; }
+        .settings-banner p { font-size: 12.5px; color: #94a3b8; line-height: 1.55; margin-bottom: 14px; }
+        .settings-banner-btn { padding: 7px 16px; border-radius: 8px; background: #fff; color: #0f172a; font-size: 12.5px; font-weight: 700; border: none; cursor: pointer; }
+        .settings-banner-btn:hover { opacity: 0.88; }
+        .settings-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .settings-row:last-child { border-bottom: none; }
+        .settings-row-label { font-size: 14px; color: #e2e8f0; font-weight: 500; }
+        .settings-row-sub { font-size: 11px; color: #64748b; margin-top: 2px; }
+        .settings-select {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px; padding: 6px 28px 6px 12px; color: #e2e8f0;
+            font-size: 13px; cursor: pointer; appearance: none;
+            font-family: 'Outfit', sans-serif;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2394a3b8'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 10px center;
+        }
+        .settings-select:focus { outline: none; border-color: rgba(99,102,241,0.5); }
+        .settings-toggle {
+            position: relative; width: 44px; height: 24px;
+            background: rgba(255,255,255,0.1); border-radius: 99px; border: none; cursor: pointer; transition: background 0.25s; flex-shrink: 0;
+        }
+        .settings-toggle.on { background: var(--accent-indigo); }
+        .settings-toggle::after { content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: white; top: 3px; left: 3px; transition: transform 0.25s cubic-bezier(0.4,0,0.2,1); }
+        .settings-toggle.on::after { transform: translateX(20px); }
+        .settings-stepper { display: flex; align-items: center; gap: 4px; }
+        .settings-step-btn { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+        .settings-step-btn:hover { background: rgba(255,255,255,0.12); }
+        .settings-step-val { min-width: 36px; text-align: center; font-size: 13px; color: #e2e8f0; font-weight: 600; }
+        .settings-badge { padding: 5px 12px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); font-size: 12.5px; color: #94a3b8; font-weight: 500; }
+        .settings-action-btn { padding: 7px 16px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Outfit',sans-serif; transition: all 0.18s; }
+        .settings-action-btn:hover { background: rgba(255,255,255,0.12); }
     </style>
+
 </head>
 <body>
 
@@ -802,9 +1000,9 @@
     <aside id="sidebar">
         <div class="sidebar-header">
             <div class="logo-area">
-                <div class="logo-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                <div class="logo-icon"><i class="fa-solid fa-bolt"></i></div>
                 <div class="logo-text">
-                    <h1>NEXUS-MED</h1>
+                    <h1>LYNX AI</h1>
                     <div class="status-line">
                         <span class="status-dot"></span>
                         <span class="status-text">System Online</span>
@@ -823,13 +1021,43 @@
         </div>
 
         <div class="sidebar-footer">
-            <div class="user-profile">
+            <!-- User Profile Menu Popup -->
+            <div class="profile-menu-popup" id="profileMenuPopup">
+                <div class="profile-menu-item" onclick="profileAction('upgrade')">
+                    <i class="fa-regular fa-star"></i>
+                    <span>Upgrade plan</span>
+                </div>
+                <div class="profile-menu-item" onclick="profileAction('personalization')">
+                    <i class="fa-regular fa-circle-user"></i>
+                    <span>Personalization</span>
+                </div>
+                <div class="profile-menu-item" onclick="profileAction('profile')">
+                    <i class="fa-regular fa-id-card"></i>
+                    <span>Profile</span>
+                </div>
+                <div class="profile-menu-item" onclick="profileAction('settings')">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </div>
+                <div class="profile-menu-divider"></div>
+                <div class="profile-menu-item" onclick="profileAction('help')">
+                    <i class="fa-regular fa-circle-question"></i>
+                    <span>Help</span>
+                    <i class="fa-solid fa-chevron-right profile-menu-arrow"></i>
+                </div>
+                <div class="profile-menu-item danger" onclick="profileAction('logout')">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Log out</span>
+                </div>
+            </div>
+
+            <div class="user-profile" id="userProfileBtn" onclick="toggleProfileMenu()">
                 <div class="user-avatar">A</div>
                 <div class="user-info">
                     <div class="user-name">Administrator</div>
-                    <div class="user-role">Medical Pro Access</div>
+                    <div class="user-role">Pro Access</div>
                 </div>
-                <i class="fa-solid fa-gear"></i>
+                <i class="fa-solid fa-ellipsis-vertical" style="color:var(--text-muted);font-size:13px;"></i>
             </div>
         </div>
     </aside>
@@ -843,7 +1071,7 @@
                 <button id="mobile-menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
                 <div class="model-badge">
                     <span class="dot"></span>
-                    <span>NEXUS-MED // LLaMA-3.3-70B</span>
+                    <span>LYNX AI // LLaMA-3.3-70B</span>
                 </div>
             </div>
             <div class="header-right">
@@ -873,7 +1101,27 @@
                     </svg>
                     <div class="avatar-core" id="avatarCore">
                         <div class="avatar-scanline"></div>
-                        <div class="avatar-face">🧠</div>
+                        <div class="avatar-face">
+                            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Outer diamond ring -->
+                                <polygon points="14,1 27,14 14,27 1,14" stroke="url(#av-grad)" stroke-width="1.5" fill="none" opacity="0.7"/>
+                                <!-- Inner hex -->
+                                <polygon points="14,6 21,10 21,18 14,22 7,18 7,10" stroke="url(#av-grad)" stroke-width="1" fill="rgba(99,102,241,0.15)" opacity="0.9"/>
+                                <!-- Center spark -->
+                                <circle cx="14" cy="14" r="3" fill="url(#av-grad)" opacity="0.95"/>
+                                <!-- Corner dots -->
+                                <circle cx="14" cy="2.5" r="1.2" fill="#818cf8"/>
+                                <circle cx="14" cy="25.5" r="1.2" fill="#06b6d4"/>
+                                <circle cx="2.5" cy="14" r="1.2" fill="#818cf8"/>
+                                <circle cx="25.5" cy="14" r="1.2" fill="#06b6d4"/>
+                                <defs>
+                                    <linearGradient id="av-grad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#818cf8"/>
+                                        <stop offset="100%" stop-color="#06b6d4"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
                     </div>
                     <div class="listening-ripple"></div>
                 </div>
@@ -887,16 +1135,27 @@
                     <div class="waveform-bar"></div>
                     <div class="waveform-bar"></div>
                 </div>
-                <div class="avatar-label" id="avatarLabel">NEXUS-MED READY</div>
+                <div class="avatar-label" id="avatarLabel">LYNX AI READY</div>
             </div>
         </div>
 
-        <!-- EKG Line -->
-        <div class="ekg-container">
-            <div class="ekg-line">
-                <svg viewBox="0 0 800 24" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0,12 L80,12 L90,12 L95,2 L100,22 L105,6 L110,18 L115,12 L200,12 L280,12 L290,12 L295,2 L300,22 L305,6 L310,18 L315,12 L400,12 L480,12 L490,12 L495,2 L500,22 L505,6 L510,18 L515,12 L600,12 L680,12 L690,12 L695,2 L700,22 L705,6 L710,18 L715,12 L800,12" stroke="rgba(99,102,241,0.3)" stroke-width="1.5" fill="none"/>
-                    <path d="M0,12 L80,12 L90,12 L95,2 L100,22 L105,6 L110,18 L115,12 L200,12 L280,12 L290,12 L295,2 L300,22 L305,6 L310,18 L315,12 L400,12 L480,12 L490,12 L495,2 L500,22 L505,6 L510,18 L515,12 L600,12 L680,12 L690,12 L695,2 L700,22 L705,6 L710,18 L715,12 L800,12" stroke="rgba(99,102,241,0.3)" stroke-width="1.5" fill="none" transform="translate(400,0)"/>
+        <!-- Data Stream Line -->
+        <div class="datastream-container">
+            <div class="datastream-line">
+                <svg viewBox="0 0 800 28" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Smooth sine wave - tech/data feel, not medical -->
+                    <path d="M0,14 C20,14 30,4 50,4 C70,4 80,24 100,24 C120,24 130,4 150,4 C170,4 180,24 200,24 C220,24 230,4 250,4 C270,4 280,24 300,24 C320,24 330,4 350,4 C370,4 380,24 400,24 C420,24 430,4 450,4 C470,4 480,24 500,24 C520,24 530,4 550,4 C570,4 580,24 600,24 C620,24 630,4 650,4 C670,4 680,24 700,24 C720,24 730,4 750,4 C770,4 780,14 800,14" stroke="url(#wave-grad)" stroke-width="1.5" fill="none" opacity="0.5"/>
+                    <!-- Dashed mirror wave offset -->
+                    <path d="M0,14 C20,14 30,4 50,4 C70,4 80,24 100,24 C120,24 130,4 150,4 C170,4 180,24 200,24 C220,24 230,4 250,4 C270,4 280,24 300,24 C320,24 330,4 350,4 C370,4 380,24 400,24 C420,24 430,4 450,4 C470,4 480,24 500,24 C520,24 530,4 550,4 C570,4 580,24 600,24 C620,24 630,4 650,4 C670,4 680,24 700,24 C720,24 730,4 750,4 C770,4 780,14 800,14" stroke="url(#wave-grad)" stroke-width="1.5" fill="none" opacity="0.5" transform="translate(400,0)"/>
+                    <defs>
+                        <linearGradient id="wave-grad" x1="0" y1="0" x2="800" y2="0" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#6366f1" stop-opacity="0"/>
+                            <stop offset="20%" stop-color="#6366f1" stop-opacity="0.8"/>
+                            <stop offset="50%" stop-color="#06b6d4" stop-opacity="0.8"/>
+                            <stop offset="80%" stop-color="#6366f1" stop-opacity="0.8"/>
+                            <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
                 </svg>
             </div>
         </div>
@@ -906,26 +1165,26 @@
             <div id="emptyState">
                 <div class="empty-icon">
                     <div class="empty-icon-glow"></div>
-                    <div class="empty-icon-inner">🏥</div>
+                    <div class="empty-icon-inner">✨</div>
                 </div>
-                <h2>How can I assist you today?</h2>
-                <p>I'm NEXUS-MED, your AI medical assistant. Ask me about symptoms, medications, health advice, or speak to me using your microphone.</p>
+                <h2>What can I help you with?</h2>
+                <p>I'm LYNX AI, your intelligent assistant for any topic — coding, writing, research, ideas, or just a good conversation. Type or speak your question.</p>
                 <div class="quick-actions">
-                    <button class="quick-btn" onclick="prefill('I have a headache and fever. What could be causing this?')">
-                        <i class="fa-solid fa-head-side-virus"></i>
-                        <span>Symptom Analysis</span>
+                    <button class="quick-btn" onclick="prefill('Write a Python function to sort a list of dictionaries by a key.')">
+                        <i class="fa-solid fa-code"></i>
+                        <span>Write Code</span>
                     </button>
-                    <button class="quick-btn" onclick="prefill('What are the side effects of ibuprofen?')">
-                        <i class="fa-solid fa-pills"></i>
-                        <span>Medication Info</span>
+                    <button class="quick-btn" onclick="prefill('Summarize the key concepts of quantum computing in simple terms.')">
+                        <i class="fa-solid fa-atom"></i>
+                        <span>Explain Concepts</span>
                     </button>
-                    <button class="quick-btn" onclick="prefill('What should I do in case of a cardiac emergency?')">
-                        <i class="fa-solid fa-heart-pulse"></i>
-                        <span>Emergency Triage</span>
+                    <button class="quick-btn" onclick="prefill('Give me 5 creative business ideas for a college student.')">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>Brainstorm Ideas</span>
                     </button>
-                    <button class="quick-btn" onclick="prefill('How can I improve my mental health and reduce stress?')">
-                        <i class="fa-solid fa-brain"></i>
-                        <span>Mental Wellness</span>
+                    <button class="quick-btn" onclick="prefill('Help me write a professional email to follow up on a job application.')">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>Draft & Write</span>
                     </button>
                 </div>
             </div>
@@ -950,7 +1209,7 @@
                     <textarea
                         id="messageInput"
                         rows="1"
-                        placeholder="Message NEXUS-MED... (or press 🎤 to speak)"
+                        placeholder="Ask anything..."
                     ></textarea>
                     <div class="input-actions">
                         <button type="button" id="micBtn" title="Press to speak">
@@ -1044,7 +1303,7 @@ function setAvatarState(state) {
     if (state === 'speaking') {
         avatarCore.classList.add('speaking');
         waveform.classList.add('speaking');
-        avatarLabel.textContent = 'NEXUS-MED SPEAKING...';
+        avatarLabel.textContent = 'LYNX AI SPEAKING...';
     } else if (state === 'listening') {
         avatarCore.classList.add('listening');
         waveform.classList.add('listening');
@@ -1054,7 +1313,7 @@ function setAvatarState(state) {
         avatarLabel.textContent = 'PROCESSING...';
     } else {
         waveform.classList.add('idle');
-        avatarLabel.textContent = 'NEXUS-MED READY';
+        avatarLabel.textContent = 'LYNX AI READY';
     }
 }
 
@@ -1131,7 +1390,7 @@ function speakText(text) {
     currentUtterance = utterance;
     utterance.onstart = () => {
         setAvatarState('speaking');
-        updateVoiceStatus('speaking-status', '🔊 NEXUS-MED speaking...');
+        updateVoiceStatus('speaking-status', '🔊 LYNX AI speaking...');
     };
     utterance.onend = () => {
         setAvatarState('idle');
@@ -1261,38 +1520,146 @@ const messagesEl = document.getElementById('messages');
 const emptyState = document.getElementById('emptyState');
 const typingIndicator = document.getElementById('typingIndicator');
 
-function formatMessage(text) {
-    // Basic markdown → HTML
-    return text
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+function formatMessage(raw) {
+    // Full markdown → structured HTML
+    const esc = (s) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    // Split into lines for block-level parsing
+    const lines = raw.split('\n');
+    let html = '';
+    let inUL = false, inOL = false, inCode = false, codeBuf = '';
+
+    const closeList = () => {
+        if (inUL) { html += '</ul>'; inUL = false; }
+        if (inOL) { html += '</ol>'; inOL = false; }
+    };
+
+    const inlineFormat = (s) => esc(s)
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        .replace(/`(.+?)`/g, '<code>$1</code>')
-        .replace(/\n/g, '<br>')
-        .replace(/^• /gm, '&bull; ');
+        .replace(/\*(.+?)\*/g,     '<em>$1</em>')
+        .replace(/`([^`]+)`/g,    '<code>$1</code>');
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        // Fenced code block
+        if (line.trimStart().startsWith('```')) {
+            if (!inCode) { closeList(); inCode = true; codeBuf = ''; }
+            else { html += `<pre><code>${esc(codeBuf.trimEnd())}</code></pre>`; inCode = false; codeBuf = ''; }
+            continue;
+        }
+        if (inCode) { codeBuf += line + '\n'; continue; }
+
+        // Headings
+        const h3 = line.match(/^###\s+(.+)/);
+        const h2 = line.match(/^##\s+(.+)/);
+        const h1 = line.match(/^#\s+(.+)/);
+        if (h1) { closeList(); html += `<h1 class="md-h1">${inlineFormat(h1[1])}</h1>`; continue; }
+        if (h2) { closeList(); html += `<h2 class="md-h2">${inlineFormat(h2[1])}</h2>`; continue; }
+        if (h3) { closeList(); html += `<h3 class="md-h3">${inlineFormat(h3[1])}</h3>`; continue; }
+
+        // Unordered list
+        const ul = line.match(/^[-*•]\s+(.+)/);
+        if (ul) {
+            if (inOL) { html += '</ol>'; inOL = false; }
+            if (!inUL) { html += '<ul class="md-ul">'; inUL = true; }
+            html += `<li>${inlineFormat(ul[1])}</li>`;
+            continue;
+        }
+
+        // Ordered list
+        const ol = line.match(/^(\d+)\.\s+(.+)/);
+        if (ol) {
+            if (inUL) { html += '</ul>'; inUL = false; }
+            if (!inOL) { html += '<ol class="md-ol">'; inOL = true; }
+            html += `<li>${inlineFormat(ol[2])}</li>`;
+            continue;
+        }
+
+        closeList();
+
+        // Horizontal rule
+        if (/^---+$/.test(line.trim())) { html += '<hr class="md-hr">'; continue; }
+
+        // Empty line → paragraph break
+        if (line.trim() === '') { html += '<div class="md-spacer"></div>'; continue; }
+
+        // Regular paragraph
+        html += `<p class="md-p">${inlineFormat(line)}</p>`;
+    }
+
+    closeList();
+    if (inCode) html += `<pre><code>${esc(codeBuf)}</code></pre>`;
+    return html;
 }
 
-function createMessageEl(msg) {
+// ── Word-by-word streaming renderer ──────────────────────────
+function streamTextInto(bubbleEl, fullText, onDone) {
+    // Parse the full markdown first, but stream it word by word
+    // We reveal chars progressively by splitting the plain text
+    const words = fullText.split(/(\s+)/);
+    let revealed = '';
+    let idx = 0;
+    const speed = 28; // ms per token
+
+    function tick() {
+        if (idx >= words.length) {
+            // Final render with full markdown
+            bubbleEl.innerHTML = formatMessage(fullText);
+            if (onDone) onDone();
+            return;
+        }
+        // Batch: reveal 2-3 words at a time for natural flow
+        const batch = Math.min(2, words.length - idx);
+        for (let b = 0; b < batch; b++) revealed += words[idx++] || '';
+        // Render partial markdown
+        bubbleEl.innerHTML = formatMessage(revealed) + '<span class="cursor-blink">▋</span>';
+        scrollToBottom();
+        setTimeout(tick, speed);
+    }
+    tick();
+}
+
+function createMessageEl(msg, stream = false) {
     const row = document.createElement('div');
     row.className = `msg-row ${msg.role}`;
 
     if (msg.role === 'assistant') {
-        row.innerHTML = `
-            <div class="msg-avatar"><i class="fa-solid fa-robot"></i></div>
-            <div>
-                <div class="msg-bubble assistant">${formatMessage(msg.content)}</div>
-                <button class="speak-btn" onclick="speakText(${JSON.stringify(msg.content)})">
-                    <i class="fa-solid fa-volume-low"></i> Speak
-                </button>
-            </div>`;
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = 'msg-bubble assistant';
+
+        const speakBtn = document.createElement('button');
+        speakBtn.className = 'speak-btn';
+        speakBtn.innerHTML = '<i class="fa-solid fa-volume-low"></i> Speak';
+        speakBtn.onclick = () => speakText(msg.content);
+
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = 'msg-avatar';
+        avatarDiv.innerHTML = '<i class="fa-solid fa-robot"></i>';
+
+        const wrapDiv = document.createElement('div');
+        wrapDiv.appendChild(bubbleDiv);
+        wrapDiv.appendChild(speakBtn);
+
+        row.appendChild(avatarDiv);
+        row.appendChild(wrapDiv);
+
+        if (stream) {
+            // Start empty; streaming will fill it
+            return { row, bubbleEl: bubbleDiv };
+        } else {
+            bubbleDiv.innerHTML = formatMessage(msg.content);
+        }
     } else {
-        row.innerHTML = `<div class="msg-bubble user">${formatMessage(msg.content)}</div>`;
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble user';
+        bubble.innerHTML = formatMessage(msg.content);
+        row.appendChild(bubble);
     }
-    return row;
+    return { row, bubbleEl: null };
 }
 
 function renderMessages() {
-    // Remove all message rows (keep emptyState & typingIndicator in DOM)
     Array.from(messagesEl.children).forEach(el => {
         if (el.id !== 'emptyState' && el.id !== 'typingIndicator') el.remove();
     });
@@ -1304,20 +1671,21 @@ function renderMessages() {
     emptyState.style.display = 'none';
 
     appState.active_messages.forEach((msg, i) => {
-        const el = createMessageEl(msg);
-        el.style.animationDelay = `${i * 40}ms`;
-        messagesEl.insertBefore(el, typingIndicator);
+        const { row } = createMessageEl(msg, false);
+        row.style.animationDelay = `${i * 40}ms`;
+        messagesEl.insertBefore(row, typingIndicator);
     });
     scrollToBottom();
 }
 
-function appendMessage(msg) {
+function appendMessage(msg, enableStream = false) {
     if (appState.active_messages.length === 0) {
         emptyState.style.display = 'none';
     }
-    const el = createMessageEl(msg);
-    messagesEl.insertBefore(el, typingIndicator);
+    const { row, bubbleEl } = createMessageEl(msg, enableStream);
+    messagesEl.insertBefore(row, typingIndicator);
     scrollToBottom();
+    return bubbleEl; // returns null for user msgs or non-streamed
 }
 
 function renderHistory() {
@@ -1402,22 +1770,24 @@ async function sendMessage(text) {
         if (data.ok) {
             const aiMsg = { role: 'assistant', content: data.reply };
             appState.active_messages.push(aiMsg);
-            appendMessage(aiMsg);
 
-            // Update sidebar title
-            if (appState.active_chat_id) {
-                const chat = appState.chats.find(c => c.id === appState.active_chat_id);
-                if (chat && chat.title === 'New Session') {
-                    chat.title = text.substring(0, 32) + (text.length > 32 ? '...' : '');
-                    renderHistory();
+            // Stream word-by-word
+            const bubbleEl = appendMessage(aiMsg, true);
+            streamTextInto(bubbleEl, data.reply, async () => {
+                // After streaming finishes
+                setAvatarState('idle');
+                speakText(data.reply);
+
+                // Update sidebar title
+                if (appState.active_chat_id) {
+                    const chat = appState.chats.find(c => c.id === appState.active_chat_id);
+                    if (chat && chat.title === 'New Session') {
+                        chat.title = text.substring(0, 32) + (text.length > 32 ? '...' : '');
+                        renderHistory();
+                    }
                 }
-            }
-
-            // Auto-refresh state to sync history
-            await loadState();
-
-            // Speak reply
-            speakText(data.reply);
+                await loadState();
+            });
         } else {
             showNotif('Error: ' + (data.error || 'Unknown error'), 'error');
             setAvatarState('idle');
@@ -1539,6 +1909,230 @@ if (window.speechSynthesis) {
 // ============================================================
 loadState();
 
+// ============================================================
+//  14. PROFILE MENU
+// ============================================================
+const profileMenuPopup = document.getElementById('profileMenuPopup');
+const userProfileBtn   = document.getElementById('userProfileBtn');
+
+function toggleProfileMenu() {
+    profileMenuPopup.classList.toggle('open');
+}
+
+// Close when clicking outside
+document.addEventListener('click', (e) => {
+    if (!userProfileBtn.contains(e.target) && !profileMenuPopup.contains(e.target)) {
+        profileMenuPopup.classList.remove('open');
+    }
+});
+
+function profileAction(action) {
+    profileMenuPopup.classList.remove('open');
+    if (action === 'settings') {
+        openSettings();
+        return;
+    }
+    const messages = {
+        upgrade:         '⭐ Upgrade plan — coming soon!',
+        personalization: '🎨 Personalization settings — coming soon!',
+        profile:         '👤 Profile page — coming soon!',
+        help:            '❓ Help center — coming soon!',
+        logout:          '👋 Logged out successfully.'
+    };
+    showNotif(messages[action] || 'Coming soon!', 'info', 2800);
+}
+
+
+</script>
+
+<!-- ===== SETTINGS MODAL ===== -->
+<div id="settingsOverlay" onclick="handleSettingsOverlayClick(event)">
+  <div id="settingsModal">
+    <button id="settingsClose" onclick="closeSettings()" title="Close"><i class="fa-solid fa-xmark"></i></button>
+
+    <!-- Left Nav -->
+    <nav class="settings-nav">
+      <div class="settings-nav-item active" onclick="switchSettingsPage('general', this)"><i class="fa-solid fa-gear"></i> General</div>
+      <div class="settings-nav-item" onclick="switchSettingsPage('notifications', this)"><i class="fa-regular fa-bell"></i> Notifications</div>
+      <div class="settings-nav-item" onclick="switchSettingsPage('personalization', this)"><i class="fa-solid fa-palette"></i> Personalization</div>
+      <div class="settings-nav-item" onclick="switchSettingsPage('apps', this)"><i class="fa-solid fa-grid-2"></i> Apps</div>
+      <div class="settings-nav-item" onclick="switchSettingsPage('billing', this)"><i class="fa-regular fa-credit-card"></i> Billing</div>
+      <div class="settings-nav-item" onclick="switchSettingsPage('datacontrols', this)"><i class="fa-solid fa-database"></i> Data controls</div>
+      <div class="settings-nav-item" onclick="switchSettingsPage('storage', this)"><i class="fa-solid fa-hard-drive"></i> Storage</div>
+      <div class="settings-nav-item" onclick="switchSettingsPage('security', this)"><i class="fa-solid fa-shield-halved"></i> Security</div>
+      <div class="settings-nav-item" onclick="switchSettingsPage('parental', this)"><i class="fa-solid fa-child-reaching"></i> Parental controls</div>
+      <div class="settings-nav-item" onclick="switchSettingsPage('account', this)"><i class="fa-regular fa-circle-user"></i> Account</div>
+      <div class="settings-nav-item" onclick="switchSettingsPage('keyboard', this)"><i class="fa-regular fa-keyboard"></i> Keyboard</div>
+    </nav>
+
+    <!-- Right Panel -->
+    <div class="settings-panel">
+
+      <!-- General -->
+      <div class="settings-page active" id="sp-general">
+        <div class="settings-title">General</div>
+        <div class="settings-banner" id="secBanner">
+          <button class="settings-banner-close" onclick="document.getElementById('secBanner').remove()">×</button>
+          <div class="settings-banner-icon">🔐</div>
+          <h3>Secure your account</h3>
+          <p>Add multi-factor authentication (MFA), like a text message or authenticator app, to help protect your account when logging in.</p>
+          <button class="settings-banner-btn">Set up MFA</button>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">App updates</div><div class="settings-row-sub">Current version: 1.2026.1</div></div>
+          <button class="settings-action-btn">Check for updates</button>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-label">Launch at Login</div>
+          <button class="settings-badge">Off ↗</button>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-label">Appearance</div>
+          <select class="settings-select"><option>Dark</option><option>Light</option><option>System</option></select>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-label">Contrast</div>
+          <select class="settings-select"><option>System</option><option>Normal</option><option>High</option></select>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-label">Language</div>
+          <select class="settings-select"><option>English</option><option>Hindi</option><option>Tamil</option><option>French</option><option>Spanish</option></select>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-label">Text size</div>
+          <div class="settings-stepper">
+            <button class="settings-step-btn" onclick="changeTextSize(-1)">−</button>
+            <span class="settings-step-val" id="textSizeVal">14px</span>
+            <button class="settings-step-btn" onclick="changeTextSize(1)">+</button>
+            <button class="settings-action-btn" style="margin-left:4px" onclick="resetTextSize()">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="settings-page" id="sp-notifications">
+        <div class="settings-title">Notifications</div>
+        <div class="settings-row"><div class="settings-row-label">Enable notifications</div><button class="settings-toggle on" onclick="this.classList.toggle('on')"></button></div>
+        <div class="settings-row"><div class="settings-row-label">Sound alerts</div><button class="settings-toggle" onclick="this.classList.toggle('on')"></button></div>
+        <div class="settings-row"><div class="settings-row-label">Desktop notifications</div><button class="settings-toggle on" onclick="this.classList.toggle('on')"></button></div>
+        <div class="settings-row"><div class="settings-row-label">Email digest</div><button class="settings-toggle" onclick="this.classList.toggle('on')"></button></div>
+      </div>
+
+      <!-- Personalization -->
+      <div class="settings-page" id="sp-personalization">
+        <div class="settings-title">Personalization</div>
+        <div class="settings-row"><div><div class="settings-row-label">Chat memory</div><div class="settings-row-sub">LYNX AI remembers context across sessions</div></div><button class="settings-toggle on" onclick="this.classList.toggle('on')"></button></div>
+        <div class="settings-row"><div><div class="settings-row-label">Personalized responses</div><div class="settings-row-sub">Adapt tone and style to your preferences</div></div><button class="settings-toggle on" onclick="this.classList.toggle('on')"></button></div>
+        <div class="settings-row"><div class="settings-row-label">AI Voice enabled by default</div></div><button class="settings-toggle" onclick="this.classList.toggle('on')"></button></div>
+        <div class="settings-row"><div class="settings-row-label">Response language</div><select class="settings-select"><option>Auto-detect</option><option>English</option><option>Hindi</option></select></div>
+      </div>
+
+      <!-- Apps -->
+      <div class="settings-page" id="sp-apps">
+        <div class="settings-title">Apps</div>
+        <div class="settings-row"><div><div class="settings-row-label">Connected integrations</div><div class="settings-row-sub">Manage third-party app connections</div></div><button class="settings-action-btn">Manage</button></div>
+        <div class="settings-row"><div class="settings-row-label">API access</div><button class="settings-action-btn">View API keys</button></div>
+        <div class="settings-row"><div><div class="settings-row-label">Webhook URL</div><div class="settings-row-sub">Receive event callbacks</div></div><button class="settings-action-btn">Configure</button></div>
+      </div>
+
+      <!-- Billing -->
+      <div class="settings-page" id="sp-billing">
+        <div class="settings-title">Billing</div>
+        <div class="settings-row"><div><div class="settings-row-label">Current plan</div><div class="settings-row-sub">Free tier — 100 messages/day</div></div><button class="settings-action-btn">Upgrade ⭐</button></div>
+        <div class="settings-row"><div class="settings-row-label">Payment method</div><button class="settings-action-btn">Add card</button></div>
+        <div class="settings-row"><div class="settings-row-label">Billing history</div><button class="settings-action-btn">View invoices</button></div>
+      </div>
+
+      <!-- Data controls -->
+      <div class="settings-page" id="sp-datacontrols">
+        <div class="settings-title">Data controls</div>
+        <div class="settings-row"><div><div class="settings-row-label">Improve the model for everyone</div><div class="settings-row-sub">Allow your chats to be used for model training</div></div><button class="settings-toggle" onclick="this.classList.toggle('on')"></button></div>
+        <div class="settings-row"><div><div class="settings-row-label">Export my data</div><div class="settings-row-sub">Download all your conversations and data</div></div><button class="settings-action-btn">Export</button></div>
+        <div class="settings-row"><div><div class="settings-row-label">Delete all conversations</div><div class="settings-row-sub">Permanently remove all chat history</div></div><button class="settings-action-btn" style="color:#f87171;border-color:rgba(239,68,68,0.3)">Delete all</button></div>
+      </div>
+
+      <!-- Storage -->
+      <div class="settings-page" id="sp-storage">
+        <div class="settings-title">Storage</div>
+        <div class="settings-row"><div><div class="settings-row-label">Storage used</div><div class="settings-row-sub">2.4 MB of 1 GB used</div></div><div class="settings-badge">0.24%</div></div>
+        <div class="settings-row"><div class="settings-row-label">Clear cache</div><button class="settings-action-btn">Clear</button></div>
+        <div class="settings-row"><div class="settings-row-label">Auto-delete old chats</div><select class="settings-select"><option>Never</option><option>After 30 days</option><option>After 90 days</option></select></div>
+      </div>
+
+      <!-- Security -->
+      <div class="settings-page" id="sp-security">
+        <div class="settings-title">Security</div>
+        <div class="settings-row"><div><div class="settings-row-label">Two-factor authentication</div><div class="settings-row-sub">Protect your account with MFA</div></div><button class="settings-action-btn">Enable</button></div>
+        <div class="settings-row"><div><div class="settings-row-label">Active sessions</div><div class="settings-row-sub">1 session active</div></div><button class="settings-action-btn">Manage</button></div>
+        <div class="settings-row"><div class="settings-row-label">Change password</div><button class="settings-action-btn">Update</button></div>
+      </div>
+
+      <!-- Parental -->
+      <div class="settings-page" id="sp-parental">
+        <div class="settings-title">Parental controls</div>
+        <div class="settings-row"><div><div class="settings-row-label">Safe mode</div><div class="settings-row-sub">Filter sensitive content from responses</div></div><button class="settings-toggle" onclick="this.classList.toggle('on')"></button></div>
+        <div class="settings-row"><div><div class="settings-row-label">Content restrictions</div><div class="settings-row-sub">Set allowed topics and age-appropriate content</div></div><button class="settings-action-btn">Configure</button></div>
+      </div>
+
+      <!-- Account -->
+      <div class="settings-page" id="sp-account">
+        <div class="settings-title">Account</div>
+        <div class="settings-row"><div><div class="settings-row-label">Display name</div><div class="settings-row-sub">Administrator</div></div><button class="settings-action-btn">Edit</button></div>
+        <div class="settings-row"><div><div class="settings-row-label">Email address</div><div class="settings-row-sub">admin@lynxai.app</div></div><button class="settings-action-btn">Change</button></div>
+        <div class="settings-row"><div class="settings-row-label">Delete account</div><button class="settings-action-btn" style="color:#f87171;border-color:rgba(239,68,68,0.3)">Delete</button></div>
+      </div>
+
+      <!-- Keyboard -->
+      <div class="settings-page" id="sp-keyboard">
+        <div class="settings-title">Keyboard shortcuts</div>
+        <div class="settings-row"><div class="settings-row-label">Send message</div><div class="settings-badge">Enter</div></div>
+        <div class="settings-row"><div class="settings-row-label">New line</div><div class="settings-badge">Shift + Enter</div></div>
+        <div class="settings-row"><div class="settings-row-label">New session</div><div class="settings-badge">Ctrl + N</div></div>
+        <div class="settings-row"><div class="settings-row-label">Toggle mic</div><div class="settings-badge">Ctrl + M</div></div>
+        <div class="settings-row"><div class="settings-row-label">Open settings</div><div class="settings-badge">Ctrl + ,</div></div>
+        <div class="settings-row"><div class="settings-row-label">Close / Escape</div><div class="settings-badge">Esc</div></div>
+      </div>
+
+    </div><!-- /settings-panel -->
+  </div><!-- /settingsModal -->
+</div><!-- /settingsOverlay -->
+
+<script>
+// ===== SETTINGS LOGIC =====
+const settingsOverlay = document.getElementById('settingsOverlay');
+
+function openSettings() {
+    settingsOverlay.classList.add('open');
+}
+function closeSettings() {
+    settingsOverlay.classList.remove('open');
+}
+function handleSettingsOverlayClick(e) {
+    if (e.target === settingsOverlay) closeSettings();
+}
+function switchSettingsPage(id, el) {
+    document.querySelectorAll('.settings-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.settings-nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('sp-' + id).classList.add('active');
+    el.classList.add('active');
+}
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSettings();
+    if ((e.ctrlKey || e.metaKey) && e.key === ',') { e.preventDefault(); openSettings(); }
+});
+
+// Text size control
+let currentTextSize = 14;
+function changeTextSize(delta) {
+    currentTextSize = Math.min(20, Math.max(11, currentTextSize + delta));
+    document.getElementById('textSizeVal').textContent = currentTextSize + 'px';
+    document.querySelectorAll('.msg-bubble').forEach(b => b.style.fontSize = currentTextSize + 'px');
+}
+function resetTextSize() {
+    currentTextSize = 14;
+    document.getElementById('textSizeVal').textContent = '14px';
+    document.querySelectorAll('.msg-bubble').forEach(b => b.style.fontSize = '');
+}
 </script>
 
 </body>
