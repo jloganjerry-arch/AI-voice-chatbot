@@ -1,12 +1,13 @@
 
 import os
 import uuid
+import urllib.parse
 from flask import Flask, jsonify, render_template, request, session
 from groq import Groq
 from dotenv import load_dotenv
 load_dotenv()
 app = Flask(__name__)
-app.secret_key = os.environ.get("FLASK_SECRET_KEY", "lynx-ai-secret-key-2024")
+app.secret_key = os.environ.get("85784507b29cb28f00f2c14d29134dde7b12f55ddeb36062", "lynx-ai-secret-key-2024")
 
 client = Groq(
     api_key=os.environ.get("GROQ_API_KEY")
@@ -21,6 +22,13 @@ Your capabilities include:
 - Data analysis, research, and problem-solving
 - Brainstorming ideas and providing strategic advice
 - Engaging in natural, meaningful conversation on any topic
+- Generating real images from text descriptions using integrated image AI
+
+When the user asks you to generate, create, draw, make, illustrate, or produce an image/picture/photo/art:
+- Reply with a SHORT confirmation (1 sentence max), e.g. "Sure! Generating your image now..."
+- At the START of your reply, include the exact tag: [IMAGE_GEN: <detailed prompt>]
+- The prompt inside the tag must be a rich, detailed Stable Diffusion style prompt
+- Example full reply: [IMAGE_GEN: a golden retriever puppy playing in autumn leaves, soft bokeh background, warm sunlight, photorealistic, 4k, detailed fur] Sure! Generating your image now...
 
 Guidelines:
 - Be concise, clear, and direct. Avoid unnecessary filler.
@@ -64,7 +72,13 @@ def _active_chat():
 @app.route("/", methods=["GET"])
 def home():
     _ensure_chat_state()
-    return render_template("index.html")
+    resp = render_template("index.html")
+    from flask import make_response
+    response = make_response(resp)
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 @app.route("/state", methods=["GET"])
@@ -155,6 +169,25 @@ def chat():
 
     return jsonify({"ok": True, "reply": reply})
 
+
+@app.route("/generate-image", methods=["POST"])
+def generate_image():
+    """Generate image URL via Pollinations.ai — free, no API key needed."""
+    data = request.json or {}
+    prompt = data.get("prompt", "").strip()
+    model  = data.get("model", "flux")
+    width  = int(data.get("width",  1024))
+    height = int(data.get("height", 1024))
+
+    if not prompt:
+        return jsonify({"ok": False, "error": "Prompt is required"}), 400
+
+    encoded   = urllib.parse.quote(prompt)
+    image_url = (
+        f"https://image.pollinations.ai/prompt/{encoded}"
+        f"?model={model}&width={width}&height={height}&nologo=true"
+    )
+    return jsonify({"ok": True, "url": image_url, "prompt": prompt})
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>LYNX AI | Your Intelligent Assistant</title>
     <meta name="description" content="LYNX AI — A powerful, versatile AI assistant for any topic. Code, write, research, brainstorm, and more, all in one place.">
 
@@ -852,6 +855,110 @@
         }
         .speak-btn:hover { color: var(--accent-cyan); background: rgba(6,182,212,0.08); }
 
+        /* ===== IMAGE GENERATION ===== */
+        .img-gen-bubble {
+            background: transparent !important;
+            padding: 0 !important;
+            max-width: 420px;
+        }
+        .img-gen-card {
+            background: #0f1724;
+            border: 1px solid rgba(99,102,241,0.25);
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+        /* Shimmer loading skeleton */
+        .img-gen-skeleton {
+            width: 100%; aspect-ratio: 1/1;
+            background: linear-gradient(90deg,
+                rgba(255,255,255,0.04) 25%,
+                rgba(255,255,255,0.09) 50%,
+                rgba(255,255,255,0.04) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.6s ease-in-out infinite;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 12px;
+        }
+        @keyframes shimmer {
+            0%   { background-position: -200% 0; }
+            100% { background-position:  200% 0; }
+        }
+        .img-gen-skeleton-icon { font-size: 36px; opacity: 0.3; animation: pulse-op 1.6s ease-in-out infinite; }
+        .img-gen-skeleton-text { font-size: 12px; color: rgba(255,255,255,0.25); letter-spacing: 0.5px; }
+        @keyframes pulse-op { 0%,100%{opacity:0.2} 50%{opacity:0.5} }
+
+        /* Generated image */
+        .img-gen-image-wrap {
+            position: relative; width: 100%; overflow: hidden;
+            cursor: zoom-in;
+        }
+        .img-gen-image-wrap img {
+            width: 100%; display: block;
+            border-radius: 0;
+            transition: transform 0.4s ease;
+        }
+        .img-gen-image-wrap:hover img { transform: scale(1.03); }
+
+        /* Overlay buttons */
+        .img-gen-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+            opacity: 0; transition: opacity 0.25s;
+            display: flex; align-items: flex-end; justify-content: flex-end;
+            padding: 12px; gap: 8px;
+        }
+        .img-gen-image-wrap:hover .img-gen-overlay { opacity: 1; }
+        .img-gen-overlay-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.2);
+            color: white; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s; text-decoration: none;
+        }
+        .img-gen-overlay-btn:hover { background: rgba(255,255,255,0.3); }
+
+        /* Footer */
+        .img-gen-footer {
+            padding: 10px 14px;
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        }
+        .img-gen-prompt-text {
+            font-size: 11.5px; color: #64748b; flex: 1;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .img-gen-model-badge {
+            font-size: 10px; font-weight: 700;
+            padding: 3px 8px; border-radius: 99px;
+            background: rgba(99,102,241,0.15); color: #818cf8;
+            border: 1px solid rgba(99,102,241,0.25); flex-shrink: 0;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        /* Error state */
+        .img-gen-error {
+            padding: 20px; text-align: center;
+            color: #f87171; font-size: 13px;
+        }
+        /* Lightbox */
+        #imgLightbox {
+            position: fixed; inset: 0; z-index: 600;
+            background: rgba(0,0,0,0.92); backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s;
+            cursor: zoom-out;
+        }
+        #imgLightbox.open { opacity: 1; pointer-events: all; }
+        #imgLightbox img { max-width: 90vw; max-height: 90vh; border-radius: 12px; box-shadow: 0 32px 80px rgba(0,0,0,0.8); }
+        #imgLightboxClose {
+            position: absolute; top: 20px; right: 20px;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: white; font-size: 18px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #imgLightboxClose:hover { background: rgba(255,255,255,0.2); }
+
         /* ===== MARKDOWN TYPOGRAPHY ===== */
         .msg-bubble.assistant .md-h1 {
             font-size: 19px; font-weight: 700; color: #fff;
@@ -1003,10 +1110,6 @@
                 <div class="logo-icon"><i class="fa-solid fa-bolt"></i></div>
                 <div class="logo-text">
                     <h1>LYNX AI</h1>
-                    <div class="status-line">
-                        <span class="status-dot"></span>
-                        <span class="status-text">System Online</span>
-                    </div>
                 </div>
             </div>
             <button id="newChatBtn">
@@ -1746,61 +1849,93 @@ async function sendMessage(text) {
     isSending = true;
     sendBtn.disabled = true;
 
-    // Optimistic user bubble
+    // ── IMAGE INTENT DETECTION (regex, handles any word order) ──
+    const _t = text.toLowerCase();
+    const hasCreationVerb = /\b(generate|create|draw|make|paint|illustrate|design|render|produce)\b/.test(_t);
+    const hasImageNoun    = /\b(image|picture|photo|photograph|art|artwork|drawing|illustration|painting|sketch|portrait|landscape|wallpaper)\b/.test(_t);
+    const isImageReq      = (hasCreationVerb && hasImageNoun) || /\bdraw\b|\bpaint\b|\billustrate\b/.test(_t);
+
+    // Show user bubble
     const userMsg = { role: 'user', content: text };
     appState.active_messages.push(userMsg);
     appendMessage(userMsg);
     messageInput.value = '';
     messageInput.style.height = 'auto';
+    emptyState.style.display = 'none';
 
-    // Show typing
-    setAvatarState('thinking');
-    typingIndicator.classList.add('show');
-    scrollToBottom();
+    if (isImageReq) {
+        // ── IMAGE PATH: skip AI, go directly to Pollinations ──
+        setAvatarState('thinking');
+        scrollToBottom();
 
-    try {
-        const res = await fetch('/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text })
-        });
-        const data = await res.json();
-        typingIndicator.classList.remove('show');
+        // Short AI confirmation reply (optional — shown instantly)
+        const confirmMsg = { role: 'assistant', content: '🎨 Sure! Generating your image now...' };
+        appendMessage(confirmMsg, false);
 
-        if (data.ok) {
-            const aiMsg = { role: 'assistant', content: data.reply };
-            appState.active_messages.push(aiMsg);
+        // Build image prompt from the user text
+        // Strip common command words to get the subject
+        const cleanPrompt = text
+            .replace(/^(generate|create|draw|make|show me|paint|illustrate|design|visualize|produce)\s+(me\s+)?(a\s+|an\s+|the\s+)?(image|picture|photo|art|drawing|illustration|painting)?\s*(of\s+)?/i, '')
+            .trim() || text;
 
-            // Stream word-by-word
-            const bubbleEl = appendMessage(aiMsg, true);
-            streamTextInto(bubbleEl, data.reply, async () => {
-                // After streaming finishes
-                setAvatarState('idle');
-                speakText(data.reply);
+        const card = createImageBubble(cleanPrompt);
+        await fetchAndShowImage(cleanPrompt, card);
 
-                // Update sidebar title
-                if (appState.active_chat_id) {
-                    const chat = appState.chats.find(c => c.id === appState.active_chat_id);
-                    if (chat && chat.title === 'New Session') {
-                        chat.title = text.substring(0, 32) + (text.length > 32 ? '...' : '');
-                        renderHistory();
-                    }
-                }
-                await loadState();
+        // Update chat title
+        if (appState.active_chat_id) {
+            const chat = appState.chats.find(c => c.id === appState.active_chat_id);
+            if (chat && chat.title === 'New Session') {
+                chat.title = text.substring(0, 32) + (text.length > 32 ? '...' : '');
+                renderHistory();
+            }
+        }
+        setAvatarState('idle');
+        await loadState();
+
+    } else {
+        // ── NORMAL CHAT PATH ──
+        setAvatarState('thinking');
+        typingIndicator.classList.add('show');
+        scrollToBottom();
+
+        try {
+            const res = await fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
             });
-        } else {
-            showNotif('Error: ' + (data.error || 'Unknown error'), 'error');
+            const data = await res.json();
+            typingIndicator.classList.remove('show');
+
+            if (data.ok) {
+                const aiMsg = { role: 'assistant', content: data.reply };
+                appState.active_messages.push(aiMsg);
+                const bubbleEl = appendMessage(aiMsg, true);
+                streamTextInto(bubbleEl, data.reply, async () => {
+                    setAvatarState('idle');
+                    speakText(data.reply);
+                    if (appState.active_chat_id) {
+                        const chat = appState.chats.find(c => c.id === appState.active_chat_id);
+                        if (chat && chat.title === 'New Session') {
+                            chat.title = text.substring(0, 32) + (text.length > 32 ? '...' : '');
+                            renderHistory();
+                        }
+                    }
+                    await loadState();
+                });
+            } else {
+                showNotif('Error: ' + (data.error || 'Unknown error'), 'error');
+                setAvatarState('idle');
+            }
+        } catch(e) {
+            typingIndicator.classList.remove('show');
+            showNotif('Connection error. Is the server running?', 'error');
             setAvatarState('idle');
         }
-    } catch(e) {
-        typingIndicator.classList.remove('show');
-        showNotif('Connection error. Is the server running?', 'error');
-        setAvatarState('idle');
     }
 
     isSending = false;
     sendBtn.disabled = false;
-    setAvatarState('idle');
 }
 
 async function switchChat(id) {
@@ -2133,6 +2268,170 @@ function resetTextSize() {
     document.getElementById('textSizeVal').textContent = '14px';
     document.querySelectorAll('.msg-bubble').forEach(b => b.style.fontSize = '');
 }
+</script>
+
+<!-- Image Lightbox -->
+<div id="imgLightbox" onclick="closeLightbox()">
+  <button id="imgLightboxClose" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
+  <img id="imgLightboxImg" src="" alt="Generated image">
+</div>
+
+<script>
+// ===========================
+//  IMAGE GENERATION SYSTEM
+// ===========================
+
+const IMAGE_INTENT_KEYWORDS = [
+    'generate image', 'generate a image', 'generate an image',
+    'create image', 'create a image', 'create an image',
+    'draw ', 'draw a ', 'draw an ', 'draw me',
+    'make image', 'make a image', 'make an image',
+    'make a picture', 'make me a picture',
+    'show me a picture', 'show me an image',
+    'generate a picture', 'generate a photo',
+    'create a picture', 'create a photo',
+    'create a drawing', 'generate a drawing',
+    'illustrate ', 'paint me', 'paint a ',
+    'design a ', 'visualize ', 'image of ', 'picture of ',
+    'generate art', 'create art', 'make art',
+];
+
+function hasImageIntent(text) {
+    const lower = text.toLowerCase();
+    return IMAGE_INTENT_KEYWORDS.some(kw => lower.includes(kw));
+}
+
+function openLightbox(url) {
+    const lb = document.getElementById('imgLightbox');
+    document.getElementById('imgLightboxImg').src = url;
+    lb.classList.add('open');
+}
+function closeLightbox() {
+    document.getElementById('imgLightbox').classList.remove('open');
+}
+
+// Add Escape to close lightbox
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        closeLightbox();
+    }
+});
+
+/**
+ * Create an image bubble in the chat with a shimmer skeleton.
+ * Returns the card element so we can update it once the image loads.
+ */
+function createImageBubble(prompt) {
+    const row = document.createElement('div');
+    row.className = 'msg-row assistant';
+
+    const avatarDiv = document.createElement('div');
+    avatarDiv.className = 'msg-avatar';
+    avatarDiv.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i>';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble assistant img-gen-bubble';
+
+    const card = document.createElement('div');
+    card.className = 'img-gen-card';
+
+    // Skeleton
+    card.innerHTML = `
+        <div class="img-gen-skeleton">
+            <div class="img-gen-skeleton-icon">🎨</div>
+            <div class="img-gen-skeleton-text">Generating image...</div>
+        </div>
+        <div class="img-gen-footer">
+            <span class="img-gen-prompt-text">${prompt}</span>
+            <span class="img-gen-model-badge">FLUX</span>
+        </div>`;
+
+    bubble.appendChild(card);
+
+    const wrap = document.createElement('div');
+    wrap.appendChild(bubble);
+
+    row.appendChild(avatarDiv);
+    row.appendChild(wrap);
+    messagesEl.insertBefore(row, typingIndicator);
+    scrollToBottom();
+
+    return card;
+}
+
+/**
+ * Call backend, get image URL, then load and show image in the card.
+ */
+/**
+ * Fetch and display image using Pollinations.ai URL directly.
+ * No backend call needed — just build the URL and load it.
+ */
+async function fetchAndShowImage(prompt, card) {
+    // Build Pollinations URL directly in JS
+    const encodedPrompt = encodeURIComponent(prompt);
+    const imgUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?model=flux&width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*99999)}`;
+
+    const img = new Image();
+    img.onload = () => {
+        const safePrompt = prompt.replace(/'/g, '&#39;');
+        card.innerHTML = `
+            <div class="img-gen-image-wrap" onclick="openLightbox('${imgUrl}')">
+                <img src="${imgUrl}" alt="Generated image" loading="lazy">
+                <div class="img-gen-overlay">
+                    <a class="img-gen-overlay-btn" href="${imgUrl}" download="lynx-ai.jpg" target="_blank" title="Download" onclick="event.stopPropagation()">
+                        <i class="fa-solid fa-download"></i>
+                    </a>
+                    <button class="img-gen-overlay-btn" title="Regenerate" onclick="event.stopPropagation(); regenerateImage(this)">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="img-gen-footer">
+                <span class="img-gen-prompt-text">${safePrompt}</span>
+                <span class="img-gen-model-badge">FLUX</span>
+            </div>`;
+        scrollToBottom();
+    };
+    img.onerror = () => {
+        card.innerHTML = `<div class="img-gen-error"><i class="fa-solid fa-triangle-exclamation"></i> Could not load image. Check your internet and try again.</div>`;
+    };
+    // Set src last so onload/onerror fire correctly
+    img.src = imgUrl;
+}
+
+/**
+ * Regenerate — replace the card content with a new skeleton and fetch again.
+ */
+function regenerateImage(btn) {
+    const card = btn.closest('.img-gen-card');
+    const prompt = card.querySelector('.img-gen-prompt-text')?.textContent || 'beautiful artwork';
+    card.innerHTML = `
+        <div class="img-gen-skeleton">
+            <div class="img-gen-skeleton-icon">🎨</div>
+            <div class="img-gen-skeleton-text">Regenerating...</div>
+        </div>
+        <div class="img-gen-footer">
+            <span class="img-gen-prompt-text">${prompt}</span>
+            <span class="img-gen-model-badge">FLUX</span>
+        </div>`;
+    fetchAndShowImage(prompt, card);
+}
+
+
+/**
+ * Parse [IMAGE_GEN: ...] tag from the AI reply.
+ * Returns { imagePrompt, cleanReply } or null.
+ */
+function parseImageGenTag(reply) {
+    const match = reply.match(/\[IMAGE_GEN:\s*([^\]]+)\]/);
+    if (!match) return null;
+    return {
+        imagePrompt: match[1].trim(),
+        cleanReply:  reply.replace(match[0], '').trim(),
+    };
+}
+
+// (image-intent logic is now handled directly inside sendMessage above)
 </script>
 
 </body>
