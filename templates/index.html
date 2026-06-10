@@ -2366,14 +2366,48 @@ function createImageBubble(prompt) {
  * Fetch and display image using Pollinations.ai URL directly.
  * No backend call needed — just build the URL and load it.
  */
-async function fetchAndShowImage(prompt, card) {
-    // Build Pollinations URL directly in JS
-    const encodedPrompt = encodeURIComponent(prompt);
-    const imgUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?model=flux&width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*99999)}`;
+async function fetchAndShowImage(userRequest, card) {
+    // Step 1 — Enhance prompt via Image Prompt Engineer AI
+    card.innerHTML = `
+        <div class="img-gen-skeleton">
+            <div class="img-gen-skeleton-icon">✨</div>
+            <div class="img-gen-skeleton-text">Crafting prompt...</div>
+        </div>
+        <div class="img-gen-footer">
+            <span class="img-gen-prompt-text">${userRequest}</span>
+            <span class="img-gen-model-badge">FLUX</span>
+        </div>`;
+
+    let enhancedPrompt = userRequest; // fallback
+    try {
+        const enhRes  = await fetch('/enhance-prompt', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ request: userRequest }),
+        });
+        const enhData = await enhRes.json();
+        if (enhData.ok && enhData.prompt) enhancedPrompt = enhData.prompt;
+    } catch (_) { /* use original prompt as fallback */ }
+
+    // Step 2 — Show "Generating..." skeleton with enriched prompt
+    const safeEnhanced = enhancedPrompt.replace(/'/g, '&#39;');
+    card.innerHTML = `
+        <div class="img-gen-skeleton">
+            <div class="img-gen-skeleton-icon">🎨</div>
+            <div class="img-gen-skeleton-text">Generating image...</div>
+        </div>
+        <div class="img-gen-footer">
+            <span class="img-gen-prompt-text">${safeEnhanced}</span>
+            <span class="img-gen-model-badge">FLUX</span>
+        </div>`;
+    scrollToBottom();
+
+    // Step 3 — Build Pollinations URL and load image
+    const seed = Math.floor(Math.random() * 99999);
+    const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt)}?model=flux&width=1024&height=1024&nologo=true&seed=${seed}`;
 
     const img = new Image();
     img.onload = () => {
-        const safePrompt = prompt.replace(/'/g, '&#39;');
         card.innerHTML = `
             <div class="img-gen-image-wrap" onclick="openLightbox('${imgUrl}')">
                 <img src="${imgUrl}" alt="Generated image" loading="lazy">
@@ -2387,7 +2421,7 @@ async function fetchAndShowImage(prompt, card) {
                 </div>
             </div>
             <div class="img-gen-footer">
-                <span class="img-gen-prompt-text">${safePrompt}</span>
+                <span class="img-gen-prompt-text">${safeEnhanced}</span>
                 <span class="img-gen-model-badge">FLUX</span>
             </div>`;
         scrollToBottom();
@@ -2395,9 +2429,9 @@ async function fetchAndShowImage(prompt, card) {
     img.onerror = () => {
         card.innerHTML = `<div class="img-gen-error"><i class="fa-solid fa-triangle-exclamation"></i> Could not load image. Check your internet and try again.</div>`;
     };
-    // Set src last so onload/onerror fire correctly
     img.src = imgUrl;
 }
+
 
 /**
  * Regenerate — replace the card content with a new skeleton and fetch again.
